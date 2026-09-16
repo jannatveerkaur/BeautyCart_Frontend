@@ -42,7 +42,7 @@ function App({ googleSignInEnabled }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${apiUrl}/auth/profile`, {
+        const res = await fetch(`${apiUrl}/api/auth/profile`, {
           credentials: 'include'
         })
         if (res.ok) {
@@ -93,7 +93,7 @@ function App({ googleSignInEnabled }) {
   }
 
   const handleLogout = () => {
-    fetch(`${apiUrl}/auth/logout`, {
+    fetch(`${apiUrl}/api/auth/logout`, {
       credentials: 'include'
     })
     setUser(null)
@@ -106,7 +106,7 @@ function App({ googleSignInEnabled }) {
 
   const handleRemoveFromWishlist = (productId) => {
     if (user) {
-      fetch(`${apiUrl}/auth/wishlist/${productId}`, {
+      fetch(`${apiUrl}/api/auth/wishlist/${productId}`, {
         method: 'DELETE',
         credentials: 'include'
       }).catch((err) => console.error('Wishlist remove failed:', err))
