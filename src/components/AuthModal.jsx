@@ -22,12 +22,12 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
     setError('')
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
+      const endpoint = isLogin ? '/auth/login' : '/auth/register'
       const payload = isLogin
         ? { email: formData.email, password: formData.password }
         : { name: formData.name, email: formData.email, password: formData.password, confirmPassword: formData.confirmPassword }
 
-      const response = await fetch(`${apiUrl}${endpoint.replace('/api', '')}`, {
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -38,7 +38,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
 
       if (!response.ok) {
         setError(data.message || 'An error occurred')
-        setLoading(false)
         return
       }
 
@@ -48,6 +47,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
       onClose()
     } catch (err) {
       setError(err.message || 'An error occurred')
+    } finally {
       setLoading(false)
     }
   }
@@ -68,7 +68,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
 
       if (!response.ok) {
         setError(data.message || 'Google sign-in failed')
-        setLoading(false)
         return
       }
 
@@ -76,6 +75,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
       onClose()
     } catch (err) {
       setError(err.message || 'Google sign-in failed')
+    } finally {
       setLoading(false)
     }
   }
@@ -103,47 +103,65 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
 
         <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              disabled={loading}
-            />
+            <label>
+              <span>Full name</span>
+              <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value={formData.name}
+                onChange={handleChange}
+                autoComplete="name"
+                required
+                disabled={loading}
+              />
+            </label>
           )}
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-
-          {!isLogin && (
+          <label>
+            <span>Email</span>
             <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
               required
               disabled={loading}
             />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete={isLogin ? 'current-password' : 'new-password'}
+              minLength={isLogin ? undefined : 6}
+              required
+              disabled={loading}
+            />
+          </label>
+
+          {!isLogin && (
+            <label>
+              <span>Confirm password</span>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                autoComplete="new-password"
+                minLength="6"
+                required
+                disabled={loading}
+              />
+            </label>
           )}
 
           <button type="submit" disabled={loading} className="auth-submit">
@@ -151,7 +169,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
           </button>
         </form>
 
-        {isLogin && googleSignInEnabled && (
+        {googleSignInEnabled && (
           <>
             <div className="auth-divider"><span>or</span></div>
             <div className="google-login">
@@ -170,7 +188,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, googleSignInEnabled }) {
           </>
         )}
 
-        {isLogin && !googleSignInEnabled && (
+        {!googleSignInEnabled && (
           <p className="google-login-unavailable">Google sign-in is not configured yet.</p>
         )}
 
